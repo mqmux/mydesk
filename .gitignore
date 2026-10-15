@@ -1,0 +1,8 @@
+.gomodcache/
+.gocache/
+.gotmp/
+/client.identity.json
+/mydesk-lan-*.zip
+/verification/client.identity.json
+verification/*.exe
+verification/server-linux-*

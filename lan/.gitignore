@@ -1,0 +1,6 @@
+/dist/
+/runtime/
+/logs/
+*.log
+/*.exe
+/*.zip
