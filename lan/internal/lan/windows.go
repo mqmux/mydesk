@@ -797,9 +797,11 @@ func (v *viewer) run() error {
 		return ret
 	})
 	inst, _, _ := kernel32.NewProc("GetModuleHandleW").Call(0)
-	cursor, _, _ := ucall("LoadCursorW", 0, 32512)
 	name := utf16(fmt.Sprintf("MyDeskLANViewer_%x", cb))
-	wc := wndClass{Size: uint32(unsafe.Sizeof(wndClass{})), Proc: cb, Instance: inst, Cursor: cursor, ClassName: name}
+	// The picture owns its cursor policy through WM_SETCURSOR/motion. A class
+	// cursor would let Windows restore its arrow on movement after F7 hides it.
+	// Leave it NULL; cursorAt still supplies arrows over letterboxing and HUD.
+	wc := wndClass{Size: uint32(unsafe.Sizeof(wndClass{})), Proc: cb, Instance: inst, ClassName: name}
 	if ret, _, err := ucall("RegisterClassExW", uintptr(unsafe.Pointer(&wc))); ret == 0 {
 		return fmt.Errorf("RegisterClass: %v", err)
 	}

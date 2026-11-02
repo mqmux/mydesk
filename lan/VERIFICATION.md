@@ -1,4 +1,12 @@
-# Verification — 2026-10-15
+# Verification — 2026-11-02
+
+## LAN controller 4.21 / F7 cursor policy survives mouse movement
+
+- User reports a pointer reappearing on movement after disabling both remote-video and local-pointer F7 options. The actual controller viewer registered a non-NULL arrow class cursor while dynamically calling SetCursor(NULL). Microsoft documents that a non-NULL class cursor can be restored on mouse movement. The native viewer registration regression failed against 4.20 with a nonzero class-cursor handle, before any production change.
+- The viewer now registers a NULL class cursor. Normal WM_MOUSEMOVE also refreshes the existing local-display policy, including watch mode; drag button/capture ordering stays intact. The same cursorAt logic retains an arrow over letterboxes/HUD and uses the remote shape with a local arrow fallback when enabled. Dialog classes keep their own normal cursors. No ShowCursor display-count changes or system-cursor replacement is introduced.
+- The native registered-class/drag/fullscreen/cancellation regression and existing F7 visibility combinations, remote shape/hidden-host fallback, owned F7/F8 windows and encoder cursor-argument checks passed together in 0.671 s with UI opt-in after placing the hover refresh after remote-input enqueue. They use only owned native windows and an input-recording sink, not real remote input or system clipboard writes. This verifies the concrete Windows cursor-policy defect, not the user's exact two-computer driver/capture setup.
+- Controller reports 4.21-cursor-policy, host remains 4.20-key-match, protocol stays v6. Only the controller EXE needs replacement; FFmpeg and host capture/encoder/transport/quality/FPS algorithms are unchanged. Vet passed with the existing native unsafeptr exclusion; no race-detector claim.
+- Final normal `go test ./... -count=1` passed in 25.745 s. Stripped CGO-disabled Windows x64 controller build and -version smoke check passed. Controller SHA256: `F3ACFF9CA102CEE2FF86B4B4C52546DECCCE4E904BF88FF3474C92A4FBEF9E0A`. The controller-only update archive contains the controller EXE, its launch script and three documentation files, excluding logs, identity/pairing state and FFmpeg binaries.
 
 ## LAN 4.20 / key-only discovery and explicit same-key target selection
 

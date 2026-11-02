@@ -11,7 +11,7 @@ import (
 
 type decoderBackendKey struct{}
 
-const controllerBuildVersion = "4.20-key-match"
+const controllerBuildVersion = "4.21-cursor-policy"
 
 type pictureDecoder interface {
 	writeFrame([]byte) error

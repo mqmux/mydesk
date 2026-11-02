@@ -18,6 +18,12 @@ func (v *viewer) resetRemoteInput() {
 }
 
 func (v *viewer) handlePointerMessage(hwnd uintptr, m uint32, l uintptr) {
+	if m == 0x200 {
+		// Reapply even on uncaptured hover / watch mode. Returning from F7 or
+		// another window must not revive a cursor the user explicitly hid.
+		// Queue remote input first so local cursor queries do not delay it.
+		defer v.refreshLocalCursor()
+	}
 	if !v.capture.Load() {
 		v.cancelPointerCapture()
 		return
@@ -43,7 +49,7 @@ func (v *viewer) handlePointerMessage(hwnd uintptr, m uint32, l uintptr) {
 	if v.onInput != nil {
 		v.onInput(e)
 	}
-	if before != 0 || v.pointer.buttons != 0 {
+	if m != 0x200 && (before != 0 || v.pointer.buttons != 0) {
 		v.refreshLocalCursor()
 	}
 	// All buttons share one native capture. Releasing right/middle must not

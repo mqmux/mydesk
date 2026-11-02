@@ -63,6 +63,12 @@ func TestNativePointerCaptureFullscreenAndCancellation(t *testing.T) {
 			t.Error("viewer did not close")
 		}
 	}()
+	// Query the actual registered viewer class, not just cursorAt's result.
+	// A non-NULL class cursor can restore the arrow on the next mouse move
+	// after F7 has explicitly hidden the local pointer with SetCursor(NULL).
+	if cursor, _, _ := ucall("GetClassLongPtrW", h, ^uintptr(11)); cursor != 0 {
+		t.Fatalf("viewer class overrides F7 cursor policy on mouse move: cursor=%x", cursor)
+	}
 	// Disable cursor-based hover polling so the user's actual cursor position
 	// cannot influence these synthetic, window-local pointer messages.
 	ucall("KillTimer", h, 9)
